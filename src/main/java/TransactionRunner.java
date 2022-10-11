@@ -1,36 +1,30 @@
 import util.ConnectionManager;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class TransactionRunner {
     public static void main(String[] args) throws SQLException {
-        long flightId = 9;
+        long flightId = 8;
         //language=PostgreSQL
-        String deleteFlightSql = "DELETE from flight where id = ?";
+        String deleteFlightSql = "DELETE from flight where id = " + flightId;
         //language=PostgreSQL
-        String deleteTicketSql = "DELETE from ticket where flight_id = ?";
+        String deleteTicketSql = "DELETE from ticket where flight_id = " + flightId;
 
         Connection connection = null;
-        PreparedStatement deleteFlightStatementId = null;
-        PreparedStatement deleteTicketStatementId = null;
+        Statement statement = null;
 
         try {
             connection = ConnectionManager.open();
-            deleteFlightStatementId = connection.prepareStatement(deleteFlightSql);
-            deleteTicketStatementId = connection.prepareStatement(deleteTicketSql);
-
             connection.setAutoCommit(false);
 
-            deleteFlightStatementId.setLong(1, flightId);
-            deleteTicketStatementId.setLong(1, flightId);
+            statement = connection.createStatement();
+            statement.addBatch(deleteTicketSql);
+            statement.addBatch(deleteFlightSql);
 
-            deleteTicketStatementId.executeUpdate();
-//            if (true) {
-//                throw new RuntimeException("Exception. Transaction is not atomaric");
-//            } // transaction demo
-            deleteFlightStatementId.executeUpdate();
+            int[] result = statement.executeBatch();
+
             connection.commit();
         } catch (Exception e) {
             if (connection != null) {
@@ -40,14 +34,6 @@ public class TransactionRunner {
         } finally {
             if (connection != null) {
                 connection.close();
-            }
-
-            if (deleteTicketStatementId != null) {
-                deleteTicketStatementId.close();
-            }
-
-            if (deleteFlightStatementId != null) {
-                deleteFlightStatementId.close();
             }
         }
     }
