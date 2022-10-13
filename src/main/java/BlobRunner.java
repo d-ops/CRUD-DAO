@@ -11,7 +11,11 @@ import java.sql.SQLException;
 
 public class BlobRunner {
     public static void main(String[] args) throws SQLException, IOException {
-        saveBlob();
+        try{
+            saveBlob();
+        } finally {
+            ConnectionManager.closePool();
+        }
     }
 
     // blob - bytea
@@ -22,7 +26,7 @@ public class BlobRunner {
                 where id = 1
                 """;
 
-        try (Connection connection = ConnectionManager.open();
+        try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setBytes(1,

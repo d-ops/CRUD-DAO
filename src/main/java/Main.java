@@ -22,7 +22,7 @@ public class Main {
                 select id from flight where departure_date between ? and ?
                 """;
         List<Long> result = new ArrayList<>();
-        try(Connection connection = ConnectionManager.open();
+        try(Connection connection = ConnectionManager.get();
         PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setFetchSize(50);
             preparedStatement.setQueryTimeout(10);
@@ -45,7 +45,7 @@ public class Main {
                 """;
         List<Long> list = new ArrayList<>();
 
-        try (Connection connection = ConnectionManager.open();
+        try (Connection connection = ConnectionManager.get();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, flightId);
             ResultSet resultSet = preparedStatement.executeQuery();
